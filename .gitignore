@@ -1,2 +1,5 @@
 *.pkl
+.DS_Store
+*.pyc
 client_secret.json
+settings.json
