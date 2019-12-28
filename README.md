@@ -1,4 +1,4 @@
-# Baby Tracker for Raspberry Pi
+# Baby Activity Logger for Raspberry Pi
 ## Description
 This python app integrates with Google Calendar to add a calendar event for when your baby eats or sleeps. 
 
