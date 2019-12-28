@@ -1,3 +1,6 @@
 from gcal_helper import GcalHelper
 
-calendar = GcalHelper('client_secret.json', 'token.pkl', 'last_sleep.pkl')
+calendar = GcalHelper(
+    './settings/client_secret.json',
+    './settings/token.pkl',
+    './settings/last_sleep.pkl')
