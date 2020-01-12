@@ -26,23 +26,25 @@ gpio_led_pins = {
     'blue': 6,
 }
 
-try:
-    cal = GcalApiClient('../settings/client_secret.json', '../settings/token.pkl', '../settings/last_sleep.pkl')
-    print('Ready')
-except:
-    print('Error with gcal client, check settings files.')
-
 sleep_button = Button(gpio_button_pins['sleep'])
 eat_button = Button(gpio_button_pins['eat'])
 wake_button = Button(gpio_button_pins['wake'])
 led = RGBLED(**gpio_led_pins)
+
+try:
+    cal = GcalApiClient('../settings/client_secret.json', '../settings/token.pkl', '../settings/last_sleep.pkl')
+    print('Ready')
+    led.blink(on_time=0.3, off_time=0.3, n=5, on_color=colors['green'])
+except:
+    print('Error with gcal client, check settings files.')
+
 
 def dispatch_event(button):
     pin_number = button.pin.number
     event_name = gpio_pin_actions[pin_number]
 
     led.blink(
-        on_time=0.5, off_time=0.5, n=5, on_color=colors['purple']
+        on_time=0.3, off_time=0.3, n=5, on_color=colors['purple']
     )
     if event_name == 'wake':
         event = cal.end_sleep()
