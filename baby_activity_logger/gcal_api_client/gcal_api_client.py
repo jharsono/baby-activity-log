@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import pickle
 
 
-class GcalHelper:
+class GcalApiClient:
     def __init__(self, path_to_secret, path_to_token, path_to_last_sleep):
         self.path_to_secret = path_to_secret
         self.path_to_token = path_to_token
@@ -21,7 +21,7 @@ class GcalHelper:
 
         try:
             credentials = pickle.load(open(self.path_to_token, "rb"))
-        except: 
+        except:
             flow = InstalledAppFlow.from_client_secrets_file(
                 self.path_to_secret, scopes=scopes)
             credentials = flow.run_console()
@@ -49,20 +49,25 @@ class GcalHelper:
             },
         }
         print('Added %s' % summary)
-        new_event = self.service.events().insert(
-            calendarId=self.calendar_id,
-            body=event_data).execute()
+        try:
+            new_event = self.service.events().insert(
+                calendarId=self.calendar_id,
+                body=event_data).execute()
 
-        if summary == 'sleep':
-            sleep_obj = {
-                'id': new_event['id'],
-                'start': new_event['start']['dateTime']
-            }
-            print(sleep_obj)
+            if summary == 'sleep':
+                sleep_obj = {
+                    'id': new_event['id'],
+                    'start': new_event['start']['dateTime']
+                }
+                print(sleep_obj)
 
-            self.last_sleep = pickle.dump(
-                sleep_obj,
-                open(self.path_to_last_sleep, 'wb'))
+                self.last_sleep = pickle.dump(
+                    sleep_obj,
+                    open(self.path_to_last_sleep, 'wb'))
+            return new_event
+        except:
+            return False
+
 
     def get_last_sleep(self):
         try:
@@ -101,11 +106,13 @@ class GcalHelper:
                 'dateTime': start_time,
             },
         }
+        try:
+            event = self.service.events().patch(
+                calendarId=self.calendar_id,
+                eventId=self.last_sleep['id'],
+                body=event_data).execute()
 
-        event = self.service.events().patch(
-            calendarId=self.calendar_id,
-            eventId=self.last_sleep['id'],
-            body=event_data).execute()
-
-        new_end_time = event.get('end')['dateTime']
-        print('Sleep ended at %s' % new_end_time)
+            new_end_time = event.get('end')['dateTime']
+            return 'Sleep ended at %s' % new_end_time
+        except:
+            return False

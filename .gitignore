@@ -3,3 +3,4 @@
 *.pyc
 client_secret.json
 settings.json
+*.pylintrc
