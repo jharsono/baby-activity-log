@@ -26,7 +26,11 @@ gpio_led_pins = {
     'blue': 6,
 }
 
-cal = GcalApiClient('../settings/client_secret.json', '../settings/token.pkl', '../settings/last_sleep.pkl')
+try:
+    cal = GcalApiClient('../settings/client_secret.json', '../settings/token.pkl', '../settings/last_sleep.pkl')
+except:
+    print('Error with gcal client, check settings files.')
+
 sleep_button = Button(gpio_button_pins['sleep'])
 eat_button = Button(gpio_button_pins['eat'])
 wake_button = Button(gpio_button_pins['wake'])
