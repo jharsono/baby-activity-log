@@ -1,3 +1,4 @@
+import schedule
 from gpiozero import RGBLED, Button
 from time import sleep
 from gcal_api_client.gcal_api_client import GcalApiClient
@@ -32,12 +33,14 @@ wake_button = Button(gpio_button_pins['wake'])
 led = RGBLED(**gpio_led_pins)
 
 try:
-    cal = GcalApiClient('../settings/client_secret.json', '../settings/token.pkl', '../settings/last_sleep.pkl')
+    cal = GcalApiClient('../settings/client_secret.json',
+                        '../settings/token.pkl')
     print('Ready')
     led.blink(on_time=0.3, off_time=0.3, n=5, on_color=colors['green'])
 except:
     print('Error with gcal client, check settings files.')
     led.color = colors['red']
+
 
 def dispatch_event(button):
     pin_number = button.pin.number
@@ -63,7 +66,17 @@ def dispatch_event(button):
         sleep(2)
         led.off()
 
+
+# Scheduling the task
+schedule.every(1).minutes.do(cal.set_last_sleep)
+
 while True:
-    sleep_button.when_pressed = dispatch_event
-    eat_button.when_pressed = dispatch_event
-    wake_button.when_pressed = dispatch_event
+    sleep_button.when_pressed = \
+        eat_button.when_pressed = \
+        wake_button.when_pressed \
+        = dispatch_event
+
+    # Checks whether a scheduled task
+    # is pending to run or not
+    schedule.run_pending()
+    sleep(5)

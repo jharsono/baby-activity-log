@@ -1,14 +1,14 @@
+import pickle
+import os
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from datetime import datetime, timedelta
-import pickle
-import os
+
 
 class GcalApiClient:
-    def __init__(self, path_to_secret, path_to_token, path_to_last_sleep):
-        self.path_to_secret = '../../settings/client_secret.json'
-        self.path_to_token = '../../settings/token.pkl'
-        self.path_to_last_sleep = '../../settings/last_sleep.pkl'
+    def __init__(self, path_to_secret, path_to_token):
+        self.path_to_secret = '../%s' % path_to_secret
+        self.path_to_token = '../%s' % path_to_token
         self.service = None
         self.calendar_id = None
 
@@ -63,41 +63,25 @@ class GcalApiClient:
                 }
                 print(sleep_obj)
 
-                self.last_sleep = pickle.dump(
-                    sleep_obj,
-                    open(os.path.abspath(os.path.join(
-                os.path.dirname(__file__), self.path_to_last_sleep)), 'wb'))
+                self.last_sleep = sleep_obj
             return new_event
         except:
             return False
 
-
     def get_last_sleep(self):
-        try:
-            last_sleep = pickle.load(open(os.path.abspath(os.path.join(
-                os.path.dirname(__file__), self.path_to_last_sleep)), 'rb'))
-        except:
-            print('last sleep not found')
-            last_sleep_query = self.service.events().list(
-                    calendarId=self.calendar_id,
-                    q='sleep',
-                    singleEvents=True,
-                    orderBy="startTime"
-                ).execute()
-            last_sleep_item = last_sleep_query['items'][-1]
-            print(last_sleep_item)
-            last_sleep_obj = {
-                'id': last_sleep_item['id'],
-                'start': last_sleep_item['start']['dateTime']
-            }
-            pickle.dump(
-                last_sleep_obj,
-                open(os.path.abspath(os.path.join(
-                os.path.dirname(__file__), self.path_to_last_sleep)), 'wb'))
-            last_sleep = pickle.load(open(os.path.abspath(os.path.join(
-                os.path.dirname(__file__), self.path_to_last_sleep)), 'rb'))
-
-        return last_sleep
+        last_sleep_query = self.service.events().list(
+                calendarId=self.calendar_id,
+                q='sleep',
+                singleEvents=True,
+                orderBy="startTime"
+            ).execute()
+        last_sleep_item = last_sleep_query['items'][-1]
+        print(last_sleep_item)
+        last_sleep_obj = {
+            'id': last_sleep_item['id'],
+            'start': last_sleep_item['start']['dateTime']
+        }
+        return last_sleep_obj
 
     def end_sleep(self):
         print('ending sleep id %s' % self.last_sleep['id'])
@@ -121,4 +105,14 @@ class GcalApiClient:
             new_end_time = event.get('end')['dateTime']
             return 'Sleep ended at %s' % new_end_time
         except:
+            return False
+
+    # Last sleep scheduled task
+    def set_last_sleep(self):
+        try:
+            last_sleep = self.get_last_sleep()
+            self.last_sleep = last_sleep
+            return last_sleep
+        except:
+            print('error setting last sleep')
             return False
