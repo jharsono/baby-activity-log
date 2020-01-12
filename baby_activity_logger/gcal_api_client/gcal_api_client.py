@@ -2,13 +2,13 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from datetime import datetime, timedelta
 import pickle
-
+import os
 
 class GcalApiClient:
     def __init__(self, path_to_secret, path_to_token, path_to_last_sleep):
-        self.path_to_secret = path_to_secret
-        self.path_to_token = path_to_token
-        self.path_to_last_sleep = path_to_last_sleep
+        self.path_to_secret = '../../settings/client_secret.json'
+        self.path_to_token = '../../settings/token.pkl'
+        self.path_to_last_sleep = '../../settings/last_sleep.pkl'
         self.service = None
         self.calendar_id = None
 
@@ -20,12 +20,14 @@ class GcalApiClient:
         scopes = ['https://www.googleapis.com/auth/calendar']
 
         try:
-            credentials = pickle.load(open(self.path_to_token, "rb"))
+            credentials = pickle.load(open(os.path.abspath(os.path.join(
+                os.path.dirname(__file__), self.path_to_token)), "rb"))
         except:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                self.path_to_secret, scopes=scopes)
+            flow = InstalledAppFlow.from_client_secrets_file(os.path.abspath(os.path.join(
+                os.path.dirname(__file__), self.path_to_secret)), scopes=scopes)
             credentials = flow.run_console()
-            pickle.dump(credentials, open(self.path_to_token, "wb"))
+            pickle.dump(credentials, open(os.path.abspath(os.path.join(
+                os.path.dirname(__file__), self.path_to_token)), "wb"))
 
         self.service = build("calendar", "v3", credentials=credentials)
 
@@ -63,7 +65,8 @@ class GcalApiClient:
 
                 self.last_sleep = pickle.dump(
                     sleep_obj,
-                    open(self.path_to_last_sleep, 'wb'))
+                    open(os.path.abspath(os.path.join(
+                os.path.dirname(__file__), self.path_to_last_sleep)), 'wb'))
             return new_event
         except:
             return False
@@ -71,7 +74,8 @@ class GcalApiClient:
 
     def get_last_sleep(self):
         try:
-            last_sleep = pickle.load(open(self.path_to_last_sleep, 'rb'))
+            last_sleep = pickle.load(open(os.path.abspath(os.path.join(
+                os.path.dirname(__file__), self.path_to_last_sleep)), 'rb'))
         except:
             print('last sleep not found')
             last_sleep_query = self.service.events().list(
@@ -88,8 +92,10 @@ class GcalApiClient:
             }
             pickle.dump(
                 last_sleep_obj,
-                open(self.path_to_last_sleep, 'wb'))
-            last_sleep = pickle.load(open(self.path_to_last_sleep, 'rb'))
+                open(os.path.abspath(os.path.join(
+                os.path.dirname(__file__), self.path_to_last_sleep)), 'wb'))
+            last_sleep = pickle.load(open(os.path.abspath(os.path.join(
+                os.path.dirname(__file__), self.path_to_last_sleep)), 'rb'))
 
         return last_sleep
 

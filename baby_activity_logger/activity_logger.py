@@ -28,6 +28,7 @@ gpio_led_pins = {
 
 try:
     cal = GcalApiClient('../settings/client_secret.json', '../settings/token.pkl', '../settings/last_sleep.pkl')
+    print('Ready')
 except:
     print('Error with gcal client, check settings files.')
 
@@ -49,6 +50,8 @@ def dispatch_event(button):
     else:
         event = cal.create_event(event_name)
         sleep(2)
+
+    print(event)
 
     if not event:
         led.color = colors['red']
