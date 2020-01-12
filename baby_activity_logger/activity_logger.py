@@ -37,8 +37,8 @@ try:
     led.blink(on_time=0.3, off_time=0.3, n=5, on_color=colors['green'])
 except:
     print('Error with gcal client, check settings files.')
-
-
+    led.color = colors['red']
+    
 def dispatch_event(button):
     pin_number = button.pin.number
     event_name = gpio_pin_actions[pin_number]
