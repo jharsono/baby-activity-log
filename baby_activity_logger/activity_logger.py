@@ -68,7 +68,7 @@ def dispatch_event(button):
 
 
 # Scheduling the task
-schedule.every(1).minutes.do(cal.set_last_sleep)
+schedule.every(15).minutes.do(cal.set_last_sleep)
 
 while True:
     sleep_button.when_pressed = \
