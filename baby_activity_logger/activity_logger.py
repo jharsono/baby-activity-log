@@ -1,6 +1,6 @@
-import schedule
-from gpiozero import RGBLED, Button
 from time import sleep
+import schedule
+from gpiozero import RGBLED, PWMLED, Button
 from gcal_api_client.gcal_api_client import GcalApiClient
 
 colors = {
@@ -30,42 +30,58 @@ gpio_led_pins = {
 sleep_button = Button(gpio_button_pins['sleep'])
 eat_button = Button(gpio_button_pins['eat'])
 wake_button = Button(gpio_button_pins['wake'])
-led = RGBLED(**gpio_led_pins)
+test_button = Button(26)
+red = PWMLED(4)
+green = PWMLED(5)
+blue = PWMLED(6)
+
+# make the LED dimmer
+led_value = 0.1
 
 try:
     cal = GcalApiClient('../settings/client_secret.json',
                         '../settings/token.pkl')
     print('Ready')
-    led.blink(on_time=0.3, off_time=0.3, n=5, on_color=colors['green'])
+    green.value = led_value
+    sleep(5)
+    green.off()
 except:
     print('Error with gcal client, check settings files.')
-    led.color = colors['red']
+    red.on()
 
+def light_off():
+    green.off()
+    red.off()
+    blue.off()
+
+def pause():
+    sleep(2)
 
 def dispatch_event(button):
     pin_number = button.pin.number
     event_name = gpio_pin_actions[pin_number]
 
-    led.blink(
-        on_time=0.3, off_time=0.3, n=5, on_color=colors['purple']
-    )
+    blue.value = led_value
+
     if event_name == 'wake':
         event = cal.end_sleep()
-        sleep(2)
+        pause()
     else:
         event = cal.create_event(event_name)
-        sleep(2)
+        pause()
 
     print(event)
 
     if not event:
-        led.color = colors['red']
+        blue.off()
+        red.value = led_value
     else:
         print('success')
-        led.color = colors['green']
-        sleep(2)
-        led.off()
+        blue.off()
+        green.value = led_value
+        pause()
 
+    light_off()
 
 # Scheduling the task
 schedule.every(15).minutes.do(cal.set_last_sleep)
