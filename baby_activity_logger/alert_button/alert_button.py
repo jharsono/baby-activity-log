@@ -4,6 +4,7 @@ from pygame import *
 import sys
 from gpiozero import Button
 from time import sleep
+import os
 
 
 class AlertButton:
@@ -11,9 +12,12 @@ class AlertButton:
         self.alert_on = False
         self.play_button = Button(gpio_pin)
 
+        pygame.display.init()
+        screen = pygame.display.set_mode((1,1))
         mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=4096)
         pygame.init()
-        screen=pygame.display.set_mode((400,400),0,32)
+        # screen=pygame.display.set_mode((400,400),0,32)
+
 
     def toggle_alert(self):
         self.alert_on = not self.alert_on
@@ -35,7 +39,7 @@ class AlertButton:
                     if event.key==K_ESCAPE:
                         pygame.quit()
                         sys.exit()
-            pygame.display.update()
+           # pygame.display.update()
 
             self.play_button.when_pressed = self.toggle_alert
 

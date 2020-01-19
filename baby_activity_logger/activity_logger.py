@@ -2,7 +2,7 @@ from time import sleep
 import schedule
 from gpiozero import RGBLED, PWMLED, Button
 from gcal_api_client.gcal_api_client import GcalApiClient
-from alert_button.alert_button import AlertButton
+# from alert_button.alert_button import AlertButton
 
 colors = {
     'purple': (1, 0, 1),
@@ -41,8 +41,7 @@ blue = PWMLED(6)
 led_value = 0.1
 
 # Set up the call button
-call_button = AlertButton(gpio_button_pins['call'])
-call_button.run()
+# call_button = AlertButton(gpio_button_pins['call'])
 
 # Set up the calendar API
 try:
@@ -98,9 +97,8 @@ while True:
         eat_button.when_pressed = \
         wake_button.when_pressed \
         = dispatch_event
-
-
-
+       
+    #  call_button.run()
     # Checks whether a scheduled task
     # is pending to run or not
     schedule.run_pending()
