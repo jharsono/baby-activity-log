@@ -1,13 +1,15 @@
 from time import sleep
 import schedule
-from gpiozero import RGBLED, PWMLED, Button
+import RPi.GPIO as GPIO
+from gpiozero import Button
+from led_helper.led_helper import LEDHelper
 from gcal_api_client.gcal_api_client import GcalApiClient
 # from alert_button.alert_button import AlertButton
 
 colors = {
-    'purple': (1, 0, 1),
-    'red': (1, 0, 0),
-    'green': (0, 1, 0),
+    'purple': [1, 0, 1],
+    'red': [1, 0, 0],
+    'green': [0, 1, 0],
 }
 
 gpio_button_pins = {
@@ -23,22 +25,17 @@ gpio_pin_actions = {
     21: 'Wake',
 }
 
-gpio_led_pins = {
-    'red': 4,
-    'green': 5,
-    'blue': 6,
-}
+# GPIO PINS
+RED = 4
+GREEN = 5
+BLUE = 6
 
 sleep_button = Button(gpio_button_pins['sleep'])
 eat_button = Button(gpio_button_pins['eat'])
 wake_button = Button(gpio_button_pins['wake'])
-test_button = Button(26)
-red = PWMLED(4)
-green = PWMLED(5)
-blue = PWMLED(6)
+test_button = Button(19)
 
-# make the LED dimmer
-led_value = 0.1
+led = LEDHelper(RED, GREEN, BLUE)
 
 # Set up the call button
 # call_button = AlertButton(gpio_button_pins['call'])
@@ -48,17 +45,14 @@ try:
     cal = GcalApiClient('../settings/client_secret.json',
                         '../settings/token.pkl')
     print('Ready')
-    green.value = led_value
+    led.set_success_status()
     sleep(5)
-    green.off()
+    led.off()
+    schedule.every(15).minutes.do(cal.set_last_sleep)
 except:
     print('Error with gcal client, check settings files.')
-    red.on()
+    led.set_fail_status()
 
-def light_off():
-    green.off()
-    red.off()
-    blue.off()
 
 def pause():
     sleep(2)
@@ -66,8 +60,7 @@ def pause():
 def dispatch_event(button):
     pin_number = button.pin.number
     event_name = gpio_pin_actions[pin_number]
-
-    blue.value = led_value
+    led.set_fetch_status()
 
     if event_name == 'Wake':
         event = cal.end_sleep()
@@ -79,27 +72,24 @@ def dispatch_event(button):
     print(event)
 
     if not event:
-        blue.off()
-        red.value = led_value
+        led.set_fail_status()
     else:
         print('success')
-        blue.off()
-        green.value = led_value
+        led.set_success_status()
         pause()
-
-    light_off()
-
-# Scheduling the task
-schedule.every(15).minutes.do(cal.set_last_sleep)
+        led.off()
 
 while True:
     sleep_button.when_pressed = \
         eat_button.when_pressed = \
         wake_button.when_pressed \
         = dispatch_event
-       
-    #  call_button.run()
-    # Checks whether a scheduled task
-    # is pending to run or not
+
+#     test_button.when_pressed = light_off
+#     #  call_button.run()
+#     # Checks whether a scheduled task
+#     # is pending to run or not
     schedule.run_pending()
     sleep(5)
+
+GPIO.cleanup()
