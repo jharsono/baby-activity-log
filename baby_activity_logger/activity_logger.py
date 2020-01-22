@@ -57,6 +57,7 @@ except:
 def pause():
     sleep(2)
 
+
 def dispatch_event(button):
     pin_number = button.pin.number
     event_name = gpio_pin_actions[pin_number]
@@ -78,6 +79,7 @@ def dispatch_event(button):
         led.set_success_status()
         pause()
         led.off()
+
 
 while True:
     sleep_button.when_pressed = \
