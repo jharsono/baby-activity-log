@@ -13,14 +13,14 @@ colors = {
 }
 
 gpio_button_pins = {
-    'sleep': 16,
+    'sleep': 19,
     'eat': 20,
     'wake': 21,
-    'call': 19,
+    'call': 16,
 }
 
 gpio_pin_actions = {
-    16: 'Sleep',
+    19: 'Sleep',
     20: 'Eat',
     21: 'Wake',
 }
@@ -33,7 +33,7 @@ BLUE = 6
 sleep_button = Button(gpio_button_pins['sleep'])
 eat_button = Button(gpio_button_pins['eat'])
 wake_button = Button(gpio_button_pins['wake'])
-test_button = Button(19)
+test_button = Button(gpio_button_pins['call'])
 
 led = LEDHelper(RED, GREEN, BLUE)
 
