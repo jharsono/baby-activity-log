@@ -32,9 +32,10 @@ class LEDHelper:
         self.blue.ChangeDutyCycle(rgb[2])
 
     def off(self):
-        self.red.stop()
-        self.green.stop()
-        self.blue.stop()
+       #  self.red.ChangeDutyCycle(0)
+       #  self.green.ChangeDutyCycle(0)
+       #  self.blue.ChangeDutyCycle(0)
+       GPIO.cleanup()
 
     def set_fetch_status(self):
         self.set_color([1, 0, 1])
