@@ -26,7 +26,7 @@ gpio_pin_actions = {
 }
 
 # GPIO PINS
-RED = 4
+RED = 17
 GREEN = 5
 BLUE = 6
 
