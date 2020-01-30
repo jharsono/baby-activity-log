@@ -49,7 +49,8 @@ try:
     sleep(5)
     led.off()
     schedule.every(15).minutes.do(cal.set_last_sleep)
-except:
+except Exception as e:
+    print(e)
     print('Error with gcal client, check settings files.')
     led.set_fail_status()
 
